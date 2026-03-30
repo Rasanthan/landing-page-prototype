@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChefQuest - Stop Ordering Out. Start Leveling Up.</title>
+    <meta
+      name="description"
+      content="The Duolingo for Cooking. Master the kitchen, compete with friends, and prove your skills with BeReal-style photo check-ins."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="root">Loading ChefQuest...</div>
+    <noscript>This page needs JavaScript to render ChefQuest.</noscript>
+
+    <!-- React (UMD) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Framer Motion (UMD -> exposes window.Motion) -->
+    <script crossorigin src="https://unpkg.com/framer-motion@12.26.1/dist/framer-motion.js"></script>
+
+    <!-- Babel for in-browser JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" data-presets="react">
+      const { motion } = Motion;
+      const React = window.React;
+      const ReactDOM = window.ReactDOM;
+
+      function useSmoothHashScroll() {
+        React.useEffect(() => {
+          function onClick(e) {
+            const t = e.target;
+            const a = t && t.closest && t.closest("a[href^='#']");
+            if (!a) return;
+            const id = a.getAttribute("href");
+            if (!id || id === "#") return;
+            const el = document.querySelector(id);
+            if (!el) return;
+            e.preventDefault();
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          document.addEventListener("click", onClick);
+          return () => document.removeEventListener("click", onClick);
+        }, []);
+      }
+
+      function LevelIcon({ emoji }) {
+        return (
+          <span aria-hidden="true" style={{ fontSize: 28, lineHeight: 1 }}>
+            {emoji}
+          </span>
+        );
+      }
+
+      function Photo({ url, label }) {
+        return (
+          <div className="photo-frame">
+            <div className="photo-label">{label}</div>
+            <img src={url} alt={label} loading="lazy" />
+          </div>
+        );
+      }
+
+      function MascotRadishSVG() {
+        return (
+          <svg className="radish-svg" viewBox="0 0 420 420" role="img" aria-label="Remy the Radish">
+            <defs>
+              <linearGradient id="rad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#ff7a66" />
+                <stop offset="55%" stopColor="#ff6347" />
+                <stop offset="100%" stopColor="#ff3d26" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M160 92c-10-46 18-78 50-78s60 32 50 78c30 6 48 24 48 50 0 12-4 22-10 30 18 14 28 34 28 56 0 28-16 52-42 62 8 18 12 36 12 54 0 66-54 112-124 112S91 380 91 314c0-18 4-36 12-54-26-10-42-34-42-62 0-22 10-42 28-56-6-8-10-18-10-30 0-26 18-44 48-50z"
+              fill="url(#rad)"
+              stroke="#161616"
+              strokeWidth="10"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M155 55c0-30 14-46 35-46 10 0 20 4 30 12 10-8 20-12 30-12 21 0 35 16 35 46-25-10-45-8-65 6-20-14-40-16-65-6z"
+              fill="#ffd700"
+              stroke="#161616"
+              strokeWidth="10"
+              strokeLinejoin="round"
+            />
+            <g>
+              <circle cx="172" cy="232" r="16" fill="#161616" />
+              <circle cx="248" cy="232" r="16" fill="#161616" />
+              <path
+                d="M185 262c14 20 36 20 50 0"
+                stroke="#161616"
+                strokeWidth="12"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <path d="M140 332c16 32 45 48 80 48s64-16 80-48" stroke="#161616" strokeWidth="10" fill="none" strokeLinecap="round" />
+            </g>
+          </svg>
+        );
+      }
+
+      function App() {
+        useSmoothHashScroll();
+        const [email, setEmail] = React.useState("");
+        const [toast, setToast] = React.useState("");
+
+        const proof = [
+          {
+            id: 1,
+            tag: "Proof of Cook",
+            dish: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=900&q=70",
+            selfie: "https://images.unsplash.com/photo-1528715471579-d1bcf0a6e2d5?auto=format&fit=crop&w=900&q=70",
+            caption: "Sarah just leveled up to Sous Chef! 🍳",
+          },
+          {
+            id: 2,
+            tag: "BeReal Check-in",
+            dish: "https://images.unsplash.com/photo-1604908554015-7f7c2d1a9b0b?auto=format&fit=crop&w=900&q=70",
+            selfie: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=70",
+            caption: "Miguel proved his stir-fry. No takeout allowed. 🥡",
+          },
+          {
+            id: 3,
+            tag: "Proof of Cook",
+            dish: "https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=900&q=70",
+            selfie: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=70",
+            caption: "Ava hit Level 5: The Sauté Hero. The wok disagrees. 🔥",
+          },
+          {
+            id: 4,
+            tag: "BeReal Check-in",
+            dish: "https://images.unsplash.com/photo-1516684666976-1f1cb2b1a5a4?auto=format&fit=crop&w=900&q=70",
+            selfie: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=900&q=70",
+            caption: "Noah cooked like a Michelin menace. 🥩",
+          },
+          {
+            id: 5,
+            tag: "Proof of Cook",
+            dish: "https://images.unsplash.com/photo-1521305916504-4a1121188589?auto=format&fit=crop&w=900&q=70",
+            selfie: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=70",
+            caption: "Priya learned the boil. Now she's unstoppable. 🧀",
+          },
+          {
+            id: 6,
+            tag: "BeReal Check-in",
+            dish: "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=900&q=70",
+            selfie: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=900&q=70",
+            caption: "Chris flexed his Beef Wellington moment. ✨",
+          },
+        ];
+
+        function onSubmit(e) {
+          e.preventDefault();
+          const trimmed = email.trim();
+          if (!trimmed || !trimmed.includes("@")) {
+            setToast("Drop a real email so Remy stops judging you.");
+            window.setTimeout(() => setToast(""), 3200);
+            return;
+          }
+          const firstTime = !localStorage.getItem("chefquest_waitlist_email");
+          localStorage.setItem("chefquest_waitlist_email", trimmed);
+          setToast(firstTime ? "You're in! We'll email you your first quest." : "Updated. Chef move.");
+          setEmail("");
+          window.setTimeout(() => setToast(""), 3200);
+        }
+
+        return (
+          <div>
+            <header className="nav">
+              <div className="container nav-inner">
+                <div className="brand" aria-label="ChefQuest">
+                  <div className="brand-badge" aria-hidden="true">
+                    🍅
+                  </div>
+                  <div>
+                    ChefQuest
+                    <div style={{ fontSize: 12, opacity: 0.72, fontWeight: 850, marginTop: 2 }}>Learn cooking like a game</div>
+                  </div>
+                </div>
+
+                <nav className="nav-links" aria-label="Page navigation">
+                  <a className="nav-link" href="#path">
+                    The Path
+                  </a>
+                  <a className="nav-link" href="#proof">
+                    Proof of Cook
+                  </a>
+                  <a className="nav-link" href="#mascot">
+                    Remy
+                  </a>
+                  <a className="nav-link" href="#waitlist">
+                    Join Waitlist
+                  </a>
+                </nav>
+              </div>
+            </header>
+
+            <section className="hero">
+              <div className="container hero-grid">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                  <div className="pill">
+                    <span className="pill-dot" aria-hidden="true" />
+                    Cooking quests. Friend competition. Real proof.
+                  </div>
+                  <h1 className="h1">Stop Ordering Out. Start Leveling Up.</h1>
+                  <p className="sub">
+                    The Duolingo for Cooking. Master the kitchen, compete with friends, and prove your skills with BeReal-style photo check-ins.
+                  </p>
+
+                  <div className="hero-actions">
+                    <motion.button
+                      className="cta-3d"
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      whileTap={{ y: 1, scale: 0.99 }}
+                      transition={{ type: "spring", stiffness: 420, damping: 22 }}
+                      onClick={() => {
+                        const el = document.querySelector("#waitlist");
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }}
+                    >
+                      Start Your First Level (Free)
+                    </motion.button>
+
+                    <div className="cta-meta" aria-label="Value props">
+                      <span className="check" aria-hidden="true">
+                        ✓
+                      </span>
+                      2-minute lessons
+                      <span className="check" aria-hidden="true" style={{ marginLeft: 8 }}>
+                        ✓
+                      </span>
+                      Photo proof + streaks
+                      <span className="check" aria-hidden="true" style={{ marginLeft: 8 }}>
+                        ✓
+                      </span>
+                      Friendly competition
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 18, color: "rgba(22,22,22,.78)", fontWeight: 850, lineHeight: 1.35 }}>
+                    Tip: Press <span className="kbd">Tab</span> to jump around like it's a speedrun.
+                  </div>
+                </motion.div>
+
+                <div className="mockup-wrap">
+                  <motion.div className="mockup" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut", delay: 0.08 }}>
+                    <div className="mockup-3d">
+                      <div className="mockup-title" aria-hidden="true">
+                        <span style={{ width: 10, height: 10, borderRadius: 999, background: "var(--tomato)", border: "2px solid var(--ink)" }} />
+                        ChefQuest Path (Levels 1-5)
+                      </div>
+
+                      <div className="path-tiles" aria-hidden="true">
+                        <div className="spark spark-1" />
+                        <div className="spark spark-2" />
+                        <div className="spark spark-3" />
+
+                        <div className="tile tile-1">
+                          <div className="tile-num">1</div>
+                          <div className="tile-label">Boil &amp; Build</div>
+                        </div>
+                        <div className="tile tile-2" style={{ background: "rgba(255,255,255,.42)" }}>
+                          <div className="tile-num">2</div>
+                          <div className="tile-label">Sauce Control</div>
+                        </div>
+                        <div className="tile tile-3">
+                          <div className="tile-num">3</div>
+                          <div className="tile-label">Stir Like a Pro</div>
+                        </div>
+                        <div className="tile tile-4" style={{ background: "rgba(255,255,255,.52)" }}>
+                          <div className="tile-num">4</div>
+                          <div className="tile-label">Sear &amp; Flex</div>
+                        </div>
+                        <div className="tile tile-5">
+                          <div className="tile-num">5</div>
+                          <div className="tile-label">Sauté Hero</div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </section>
+
+            <section id="path" className="section">
+              <div className="container">
+                <motion.h2 className="section-title" initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                  The Path: Learn to Cook by Playing
+                </motion.h2>
+                <p className="section-kicker">
+                  Every level gives you a tiny win. Then you post your proof. Then friends try to outcook you. It's cooking as a game loop.
+                </p>
+
+                <div className="path-wrap">
+                  <motion.div className="brutal-card timeline" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                    <motion.div className="node" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+                      <motion.div className="node-icon" initial={{ scale: 0.85, opacity: 0 }} whileInView={{ scale: [0.85, 1.22, 1], opacity: 1 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                        <LevelIcon emoji="🧀🍝" />
+                      </motion.div>
+                      <div className="node-body">
+                        <div className="node-level">Level 1</div>
+                        <div className="node-name">The Boiling Point</div>
+                        <div className="node-desc">Mac n Cheese basics: boil, stir, and don't panic.</div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div className="node" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+                      <motion.div className="node-icon" initial={{ scale: 0.85, opacity: 0 }} whileInView={{ scale: [0.85, 1.22, 1], opacity: 1 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                        <LevelIcon emoji="🥡" />
+                      </motion.div>
+                      <div className="node-body">
+                        <div className="node-level">Level 5</div>
+                        <div className="node-name">The Sauté Hero</div>
+                        <div className="node-desc">Stir fry timing: heat, movement, and "wow" flavor.</div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div className="node" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+                      <motion.div className="node-icon" initial={{ scale: 0.85, opacity: 0 }} whileInView={{ scale: [0.85, 1.22, 1], opacity: 1 }} viewport={{ once: true, amount: 0.35 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                        <LevelIcon emoji="🥩" />
+                      </motion.div>
+                      <div className="node-body">
+                        <div className="node-level">Level 10</div>
+                        <div className="node-name">The Michelin Star</div>
+                        <div className="node-desc">Beef Wellington energy: impress friends, earn respect.</div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+
+                  <motion.aside className="brutal-card path-cta-panel" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                    <div className="section-title" style={{ fontSize: 28, margin: 0 }}>
+                      Your kitchen, but make it competitive.
+                    </div>
+                    <p className="section-kicker" style={{ marginTop: 10, marginBottom: 0 }}>
+                      Learn the skill. Prove the rep. Get the dopamine. Repeat.
+                    </p>
+
+                    <div className="bullets" aria-label="How ChefQuest works">
+                      <div className="bullet">
+                        <div className="emoji-bullet" aria-hidden="true">
+                          ⏱️
+                        </div>
+                        <div>
+                          <b>Micro-lessons</b>
+                          <small>Short steps designed for real schedules.</small>
+                        </div>
+                      </div>
+                      <div className="bullet">
+                        <div className="emoji-bullet" aria-hidden="true">
+                          📸
+                        </div>
+                        <div>
+                          <b>BeReal-style check-ins</b>
+                          <small>Dish + selfie = instant accountability.</small>
+                        </div>
+                      </div>
+                      <div className="bullet">
+                        <div className="emoji-bullet" aria-hidden="true">
+                          🏁
+                        </div>
+                        <div>
+                          <b>Levels &amp; friend duels</b>
+                          <small>Win quests, stack streaks, brag responsibly.</small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="hero-actions" style={{ marginTop: 18 }}>
+                      <motion.button
+                        className="wait-btn"
+                        whileHover={{ y: -3, scale: 1.02 }}
+                        whileTap={{ y: 1, scale: 0.99 }}
+                        transition={{ type: "spring", stiffness: 420, damping: 22 }}
+                        onClick={() => {
+                          const el = document.querySelector("#waitlist");
+                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                      >
+                        Get Free Access
+                      </motion.button>
+                      <div style={{ color: "var(--muted)", fontWeight: 850, lineHeight: 1.25 }}>No spam. Just quests.</div>
+                    </div>
+                  </motion.aside>
+                </div>
+              </div>
+            </section>
+
+            <section id="proof" className="section">
+              <div className="container">
+                <motion.h2 className="section-title" initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                  Proof of Cook (BeReal Edition)
+                </motion.h2>
+                <p className="section-kicker">
+                  Real dishes. Real mess. Real confidence. Post your check-in and watch your kitchen skills level up faster than your group chat excuses.
+                </p>
+
+                <div className="social-grid" aria-label="Proof of Cook cards">
+                  {proof.map((p, idx) => (
+                    <motion.div
+                      key={p.id}
+                      className="brutal-card proof-card"
+                      initial={{ opacity: 0, y: 14 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.25 }}
+                      transition={{ duration: 0.45, ease: "easeOut", delay: idx * 0.03 }}
+                      whileHover={{ y: -6, scale: 1.01 }}
+                    >
+                      <div className="proof-topline">
+                        <div className="tag">{p.tag}</div>
+                        <div style={{ fontWeight: 1000, color: "rgba(22,22,22,.72)", fontSize: 12 }}>{idx % 2 === 0 ? "Today" : "Just now"}</div>
+                      </div>
+
+                      <div className="proof-dual">
+                        <Photo url={p.dish} label="Dish" />
+                        <Photo url={p.selfie} label="Chef selfie" />
+                      </div>
+
+                      <div className="proof-caption">{p.caption}</div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section id="mascot" className="section">
+              <div className="container">
+                <motion.h2 className="section-title" initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                  Passive-Aggressive Motivation
+                </motion.h2>
+                <p className="section-kicker">Meet Remy the Radish. He's sweet... but he keeps receipts.</p>
+
+                <div className="mascot-grid">
+                  <motion.div className="brutal-card radish-wrap" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                    <div className="speech">
+                      <p>You haven't touched a spatula in 3 days. Your Carbonara skills are getting cold.</p>
+                    </div>
+                    <MascotRadishSVG />
+                  </motion.div>
+
+                  <motion.div className="brutal-card path-cta-panel" initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }} style={{ padding: 20 }}>
+                    <div className="section-title" style={{ fontSize: 30, margin: 0 }}>
+                      Because learning should feel like winning.
+                    </div>
+                    <p className="section-kicker" style={{ marginTop: 10 }}>
+                      You don't need "discipline." You need a system that rewards you when you show up.
+                    </p>
+
+                    <div className="bullets" style={{ marginTop: 12 }}>
+                      <div className="bullet">
+                        <div className="emoji-bullet" aria-hidden="true">
+                          🔥
+                        </div>
+                        <div>
+                          <b>Streaks with personality</b>
+                          <small>Remy cheers. Remy nags. You keep cooking.</small>
+                        </div>
+                      </div>
+                      <div className="bullet">
+                        <div className="emoji-bullet" aria-hidden="true">
+                          🤝
+                        </div>
+                        <div>
+                          <b>Friends make it fun</b>
+                          <small>Post, compete, and trade tips like it's a game.</small>
+                        </div>
+                      </div>
+                      <div className="bullet">
+                        <div className="emoji-bullet" aria-hidden="true">
+                          🧠
+                        </div>
+                        <div>
+                          <b>Skills that stick</b>
+                          <small>Repeatable techniques, not random recipes.</small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="hero-actions" style={{ marginTop: 18 }}>
+                      <motion.button
+                        className="cta-3d"
+                        style={{ minWidth: 0, width: "100%" }}
+                        whileHover={{ y: -4, scale: 1.02 }}
+                        whileTap={{ y: 1, scale: 0.99 }}
+                        transition={{ type: "spring", stiffness: 420, damping: 22 }}
+                        onClick={() => {
+                          const el = document.querySelector("#waitlist");
+                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                      >
+                        Start Your First Level (Free)
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </section>
+
+            <footer id="waitlist" className="footer">
+              <div className="container footer-grid">
+                <div>
+                  <div className="section-title" style={{ fontSize: 30, margin: 0 }}>
+                    Join the 10,000+ home chefs.
+                  </div>
+                  <p className="section-kicker" style={{ marginTop: 10 }}>
+                    Get early access to ChefQuest and your first free level quest. No takeout decisions required.
+                  </p>
+
+                  <div className="link-list" aria-label="Footer links">
+                    <a className="footer-link" href="#path">
+                      The Path
+                    </a>
+                    <a className="footer-link" href="#proof">
+                      Proof
+                    </a>
+                    <a className="footer-link" href="#mascot">
+                      Remy
+                    </a>
+                    <a
+                      className="footer-link"
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setToast("Terms are coming soon. For now: cook with love (and proof).");
+                        window.setTimeout(() => setToast(""), 3200);
+                      }}
+                    >
+                      Terms
+                    </a>
+                    <a
+                      className="footer-link"
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setToast("Privacy is coming soon. We promise: no weird stuff.");
+                        window.setTimeout(() => setToast(""), 3200);
+                      }}
+                    >
+                      Privacy
+                    </a>
+                  </div>
+                </div>
+
+                <motion.form className="brutal-card waitlist" onSubmit={onSubmit} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+                  <label htmlFor="email">Get Free Access</label>
+                  <div className="input-row">
+                    <input
+                      id="email"
+                      className="email"
+                      placeholder="you@domain.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      inputMode="email"
+                      autoComplete="email"
+                      aria-label="Email address"
+                    />
+                    <motion.button className="wait-btn" type="submit" whileHover={{ y: -3, scale: 1.02 }} whileTap={{ y: 1, scale: 0.99 }} transition={{ type: "spring", stiffness: 420, damping: 22 }}>
+                      Join Waitlist
+                    </motion.button>
+                  </div>
+                  <div className="fineprint">By joining, you agree to be politely nagged by Remy. We'll email you early access when it's live.</div>
+                </motion.form>
+              </div>
+            </footer>
+
+            {toast ? (
+              <motion.div className="toast" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }} transition={{ duration: 0.25 }} role="status" aria-live="polite">
+                {toast}
+              </motion.div>
+            ) : null}
+          </div>
+        );
+      }
+
+      try {
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+      } catch (err) {
+        const root = document.getElementById("root");
+        if (root) root.textContent = "ChefQuest failed to load: " + (err && err.message ? err.message : String(err));
+        console.error(err);
+      }
+    </script>
+  </body>
+</html>
